@@ -1,0 +1,7 @@
+{
+  "name": "vite_react_shadcn_ts",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
