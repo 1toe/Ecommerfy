@@ -26,6 +26,7 @@ import {
   onValue
 } from "firebase/database";
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { sendOrderConfirmationEmail } from '@/services/email-service';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBMIZZmHLlSJyTQP_hvCCfp2dIaIxCgVyw",
@@ -608,16 +609,20 @@ export const processCheckout = async (userId: string, userEmail: string) => {
     const newOrderRef = push(ref(rtdb, 'orders'));
     await set(newOrderRef, orderData);
     
-    // 6. Enviar correo electrónico de confirmación
+    // 6. Enviar correo electrónico de confirmación usando nuestro servicio simplificado
     try {
-      const sendEmail = httpsCallable(functions, 'sendOrderConfirmation');
-      await sendEmail({ 
-        order: {
-          id: newOrderRef.key,
-          ...orderData
-        },
-        to: userEmail
+      const emailResult = await sendOrderConfirmationEmail({
+        orderId: newOrderRef.key || 'unknown',
+        userEmail,
+        items: orderItems,
+        total,
+        createdAt: orderData.createdAt
       });
+
+      if (!emailResult.success) {
+        console.warn('Advertencia: No se pudo enviar el correo de confirmación:', emailResult.error);
+        // No fallamos el checkout si el correo falla
+      }
     } catch (emailError: any) {
       console.error("Error al enviar correo de confirmación:", emailError);
       // No fallamos la compra si el correo falla

@@ -6,6 +6,7 @@ import {
   getAllCategories
 } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { getDatabase, ref, onValue, off } from 'firebase/database';
 
 interface Product {
   id: string;
@@ -105,12 +106,71 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  // Función para escuchar cambios en tiempo real
   useEffect(() => {
-    refreshProducts();
-  }, []);
-
-  useEffect(() => {
-    refreshProducts();
+    // Solo configuramos el listener cuando no hay filtros aplicados
+    if (!selectedCategory && !searchTerm) {
+      const db = getDatabase();
+      const productsRef = ref(db, 'products');
+      
+      setLoading(true);
+      
+      // Obtener las categorías una sola vez
+      getAllCategories().then((result) => {
+        if (result.success) {
+          setCategories(result.categories || []);
+        }
+      });
+      
+      // Configurar listener para productos
+      const unsubscribe = onValue(productsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const productsArray: any[] = [];
+          
+          snapshot.forEach((categorySnapshot) => {
+            const category = categorySnapshot.key;
+            
+            categorySnapshot.forEach((productSnapshot) => {
+              const productData = productSnapshot.val();
+              productsArray.push({
+                id: productSnapshot.key,
+                category,
+                ...productData
+              });
+            });
+          });
+          
+          // Filtrar productos inválidos
+          const validProducts = productsArray.filter(prod => 
+            prod && prod.name && typeof prod.price === 'number'
+          );
+          
+          setProducts(validProducts);
+          setFilteredProducts(validProducts);
+          setLoading(false);
+        } else {
+          setProducts([]);
+          setFilteredProducts([]);
+          setLoading(false);
+        }
+      }, (error) => {
+        setError(`Error al cargar productos: ${error.message}`);
+        setLoading(false);
+        toast({
+          title: "Error",
+          description: `Error al cargar productos: ${error.message}`,
+          variant: "destructive"
+        });
+      });
+      
+      return () => {
+        // Limpiar listener cuando el componente se desmonta
+        off(productsRef);
+      };
+    } else {
+      // Cuando hay filtros, usamos la función normal
+      refreshProducts();
+    }
   }, [selectedCategory, searchTerm]);
 
   return (

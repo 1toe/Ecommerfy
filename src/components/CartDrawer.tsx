@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ShoppingCart, Trash2, Plus, Minus, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { useNavigate } from 'react-router-dom';
 
 interface CartDrawerProps {
   open: boolean;
@@ -24,6 +25,7 @@ const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
   const { cartItems, loading, removeItem, updateQuantity, totalPrice, refreshCart } = useCart();
   const { currentUser } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [processing, setProcessing] = React.useState(false);
   const [confirmDialog, setConfirmDialog] = React.useState(false);
   const [outOfStockDialog, setOutOfStockDialog] = React.useState(false);
@@ -62,6 +64,9 @@ const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
         });
         await refreshCart();
         onClose();
+        
+        // Redirigir a la página de éxito con el ID de la orden
+        navigate(`/order/success/${result.orderId}`);
       } else if (result.outOfStockItems) {
         setOutOfStockItems(result.outOfStockItems);
         setRemainingItems(result.remainingItems);
