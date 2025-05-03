@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { getCart, addToCart, removeFromCart, updateCartItemQuantity } from '@/lib/firebase';
@@ -74,6 +73,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    if (!currentUser) {
+      setCartItems([]);
+      setLoading(false);
+      return;
+    }
+    
     refreshCart();
   }, [currentUser]);
 
@@ -105,7 +110,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const removeItem = async (cartItemId: string) => {
-    const { success, error: removeError } = await removeFromCart(cartItemId);
+    if (!currentUser) return;
+    
+    const { success, error: removeError } = await removeFromCart(currentUser.uid, cartItemId);
     
     if (success) {
       setCartItems(prevItems => prevItems.filter(item => item.id !== cartItemId));
@@ -123,7 +130,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateQuantity = async (cartItemId: string, quantity: number) => {
-    const { success, error: updateError } = await updateCartItemQuantity(cartItemId, quantity);
+    if (!currentUser) return;
+    
+    const { success, error: updateError } = await updateCartItemQuantity(currentUser.uid, cartItemId, quantity);
     
     if (success) {
       if (quantity <= 0) {

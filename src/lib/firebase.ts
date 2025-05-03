@@ -22,8 +22,10 @@ import {
   update,
   remove,
   push,
-  child
+  child,
+  onValue
 } from "firebase/database";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBMIZZmHLlSJyTQP_hvCCfp2dIaIxCgVyw",
@@ -40,6 +42,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const rtdb = getDatabase(app);
+const functions = getFunctions(app);
 
 // Autenticación
 export const registerUser = async (email: string, password: string) => {
@@ -337,7 +340,7 @@ export const updateLastProductId = async (newId: number) => {
   }
 };
 
-// Carrito
+// Carrito con Realtime Database
 export const addToCart = async (userId: string, productId: string, quantity: number) => {
   try {
     // Primero obtenemos el producto para saber a qué categoría pertenece
@@ -346,28 +349,66 @@ export const addToCart = async (userId: string, productId: string, quantity: num
       return { success: false, error: "Producto no encontrado" };
     }
 
-    // Verificar si el producto ya está en el carrito
-    const cartCollection = collection(db, "carts");
-    const q = query(cartCollection, where("userId", "==", userId), where("productId", "==", productId));
-    const cartSnapshot = await getDocs(q);
+    // Verificar stock disponible
+    const product = productResult.product;
+    if (product.stock < quantity) {
+      return { 
+        success: false, 
+        error: `Solo hay ${product.stock} unidades disponibles de este producto` 
+      };
+    }
 
-    if (!cartSnapshot.empty) {
-      // Actualizar cantidad
-      const cartItemDoc = cartSnapshot.docs[0];
-      const currentQuantity = cartItemDoc.data().quantity || 0;
-      await updateDoc(doc(db, "carts", cartItemDoc.id), {
-        quantity: currentQuantity + quantity
+    // Verificar si el producto ya está en el carrito
+    const cartRef = ref(rtdb, `carts/${userId}`);
+    const cartSnapshot = await get(cartRef);
+    
+    if (cartSnapshot.exists()) {
+      // Buscar si el producto ya está en el carrito
+      let existingItem = null;
+      let existingKey = null;
+      
+      cartSnapshot.forEach((childSnapshot) => {
+        const item = childSnapshot.val();
+        if (item.productId === productId) {
+          existingItem = item;
+          existingKey = childSnapshot.key;
+          return true; // Break the loop
+        }
       });
+      
+      if (existingItem && existingKey) {
+        // Actualizar cantidad
+        const newQuantity = existingItem.quantity + quantity;
+        // Verificar que la nueva cantidad no exceda el stock
+        if (newQuantity > product.stock) {
+          return { 
+            success: false, 
+            error: `No puedes añadir más unidades. Stock disponible: ${product.stock}` 
+          };
+        }
+        
+        await update(ref(rtdb, `carts/${userId}/${existingKey}`), {
+          quantity: newQuantity
+        });
+      } else {
+        // Añadir nuevo item
+        await push(ref(rtdb, `carts/${userId}`), {
+          productId,
+          category: product.category,
+          quantity,
+          createdAt: new Date().toISOString()
+        });
+      }
     } else {
-      // Añadir nuevo item al carrito
-      await addDoc(collection(db, "carts"), {
-        userId,
+      // Primer producto en el carrito
+      await push(ref(rtdb, `carts/${userId}`), {
         productId,
-        category: productResult.product.category, // Guardar la categoría para acceso rápido
+        category: product.category,
         quantity,
-        createdAt: new Date()
+        createdAt: new Date().toISOString()
       });
     }
+    
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -376,61 +417,103 @@ export const addToCart = async (userId: string, productId: string, quantity: num
 
 export const getCart = async (userId: string) => {
   try {
-    const cartCollection = collection(db, "carts");
-    const q = query(cartCollection, where("userId", "==", userId));
-    const cartSnapshot = await getDocs(q);
-
+    const cartRef = ref(rtdb, `carts/${userId}`);
+    const cartSnapshot = await get(cartRef);
+    
+    if (!cartSnapshot.exists()) {
+      return { success: true, cartItems: [] };
+    }
+    
     // Obtener detalles de los productos
     const cartItems = [];
-    for (const cartDoc of cartSnapshot.docs) {
-      const cartItem = cartDoc.data();
-      const productResult = await getRealTimeProductById(cartItem.productId);
-
-      if (productResult.success && productResult.product) {
-        cartItems.push({
-          id: cartDoc.id,
-          product: productResult.product,
-          quantity: cartItem.quantity
+    
+    const promises = [];
+    cartSnapshot.forEach((childSnapshot) => {
+      const cartItemId = childSnapshot.key;
+      const cartItemData = childSnapshot.val();
+      
+      const promise = getRealTimeProductById(cartItemData.productId)
+        .then(result => {
+          if (result.success && result.product) {
+            cartItems.push({
+              id: cartItemId,
+              product: result.product,
+              quantity: cartItemData.quantity
+            });
+          }
         });
-      }
-    }
-
+      
+      promises.push(promise);
+    });
+    
+    await Promise.all(promises);
+    
     return { success: true, cartItems };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 };
 
-export const removeFromCart = async (cartItemId: string) => {
+export const removeFromCart = async (userId: string, cartItemId: string) => {
   try {
-    await deleteDoc(doc(db, "carts", cartItemId));
+    await remove(ref(rtdb, `carts/${userId}/${cartItemId}`));
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 };
 
-export const updateCartItemQuantity = async (cartItemId: string, quantity: number) => {
+export const updateCartItemQuantity = async (userId: string, cartItemId: string, quantity: number) => {
   try {
     if (quantity <= 0) {
-      await removeFromCart(cartItemId);
-    } else {
-      await updateDoc(doc(db, "carts", cartItemId), { quantity });
+      return await removeFromCart(userId, cartItemId);
     }
+    
+    // Primero obtenemos el ítem para verificar el producto
+    const cartItemRef = ref(rtdb, `carts/${userId}/${cartItemId}`);
+    const cartItemSnapshot = await get(cartItemRef);
+    
+    if (!cartItemSnapshot.exists()) {
+      return { success: false, error: "Ítem no encontrado en el carrito" };
+    }
+    
+    const cartItemData = cartItemSnapshot.val();
+    
+    // Verificar stock del producto
+    const productResult = await getRealTimeProductById(cartItemData.productId);
+    
+    if (!productResult.success || !productResult.product) {
+      return { success: false, error: "Producto no encontrado" };
+    }
+    
+    const product = productResult.product;
+    
+    // Verificar que la cantidad no exceda el stock
+    if (quantity > product.stock) {
+      return { 
+        success: false, 
+        error: `No hay suficiente stock. Disponible: ${product.stock}` 
+      };
+    }
+    
+    await update(cartItemRef, { quantity });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 };
 
-// Proceso de compra
-export const processCheckout = async (userId: string) => {
+// Proceso de compra con Realtime Database
+export const processCheckout = async (userId: string, userEmail: string) => {
   try {
     // 1. Obtener carrito de compras
     const { success, cartItems, error } = await getCart(userId);
 
-    if (!success || !cartItems) {
-      return { success: false, error: error || "Error al obtener el carrito" };
+    if (!success || !cartItems || cartItems.length === 0) {
+      return { 
+        success: false, 
+        error: error || "El carrito está vacío o no se pudo obtener" 
+      };
     }
 
     // 2. Verificar stock para cada producto
@@ -439,26 +522,42 @@ export const processCheckout = async (userId: string) => {
 
     for (const item of cartItems) {
       const product = item.product;
-      if (product.stock >= item.quantity) {
-        validItems.push(item);
+      
+      // Verificamos de nuevo el stock actual (puede haber cambiado desde que se cargó el carrito)
+      const freshProductResult = await getRealTimeProductById(product.id);
+      
+      if (!freshProductResult.success) {
+        outOfStockItems.push({
+          productId: product.id,
+          name: product.name,
+          requestedQuantity: item.quantity,
+          availableStock: 0,
+          cartItemId: item.id,
+          error: "Producto ya no disponible"
+        });
+        continue;
+      }
+      
+      const freshProduct = freshProductResult.product;
+      
+      if (freshProduct.stock >= item.quantity) {
+        validItems.push({
+          ...item,
+          product: freshProduct // Usamos el producto con datos actualizados
+        });
       } else {
         outOfStockItems.push({
           productId: product.id,
           name: product.name,
           requestedQuantity: item.quantity,
-          availableStock: product.stock,
+          availableStock: freshProduct.stock,
           cartItemId: item.id
         });
       }
     }
 
-    // 3. Si hay productos sin stock, informar al usuario y eliminarlos del carrito
+    // 3. Si hay productos sin stock, informar al usuario y mantenerlos en el carrito
     if (outOfStockItems.length > 0) {
-      // Eliminar items sin stock del carrito
-      for (const item of outOfStockItems) {
-        await removeFromCart(item.cartItemId);
-      }
-
       return {
         success: false,
         error: "Algunos productos no tienen suficiente stock",
@@ -468,35 +567,65 @@ export const processCheckout = async (userId: string) => {
     }
 
     // 4. Procesar la compra (actualizar stock)
+    const orderItems = [];
+    let total = 0;
+    
     for (const item of validItems) {
       const product = item.product;
-      await updateDoc(doc(db, "products", product.id), {
+      const category = product.category;
+      
+      // Actualizar stock en Realtime Database
+      await update(ref(rtdb, `products/${category}/${product.id}`), {
         stock: product.stock - item.quantity
       });
-
+      
+      // Preparar datos para la orden
+      orderItems.push({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.category,
+        quantity: item.quantity,
+        subtotal: product.price * item.quantity
+      });
+      
+      total += product.price * item.quantity;
+      
       // Eliminar del carrito
-      await removeFromCart(item.id);
+      await removeFromCart(userId, item.id);
     }
 
-    // 5. Crear orden
+    // 5. Crear orden en Realtime Database
     const orderData = {
       userId,
-      items: validItems.map(item => ({
-        productId: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity
-      })),
-      total: validItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0),
-      createdAt: new Date(),
+      userEmail,
+      items: orderItems,
+      total,
+      createdAt: new Date().toISOString(),
       status: "completed"
     };
 
-    const orderRef = await addDoc(collection(db, "orders"), orderData);
+    const newOrderRef = push(ref(rtdb, 'orders'));
+    await set(newOrderRef, orderData);
+    
+    // 6. Enviar correo electrónico de confirmación
+    try {
+      const sendEmail = httpsCallable(functions, 'sendOrderConfirmation');
+      await sendEmail({ 
+        order: {
+          id: newOrderRef.key,
+          ...orderData
+        },
+        to: userEmail
+      });
+    } catch (emailError: any) {
+      console.error("Error al enviar correo de confirmación:", emailError);
+      // No fallamos la compra si el correo falla
+    }
 
     return {
       success: true,
-      orderId: orderRef.id,
+      orderId: newOrderRef.key,
       orderData
     };
   } catch (error: any) {

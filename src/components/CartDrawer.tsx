@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Sheet,
@@ -52,7 +51,9 @@ const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
     setProcessing(true);
 
     try {
-      const result = await processCheckout(currentUser.uid);
+      const userEmail = currentUser.email || '';
+      // Pasamos el email del usuario para el envío del correo
+      const result = await processCheckout(currentUser.uid, userEmail);
 
       if (result.success) {
         toast({

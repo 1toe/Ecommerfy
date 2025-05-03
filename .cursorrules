@@ -58,10 +58,6 @@
 
 
 
-    OBJETIVO (verifica la implementacion de algunas cosas, ya que alguna están pero OTRAS NO y NO ESTÁN FUNCIONALES POR LO QUE DEBERÁS AGREGA EN CASO DE SER NECESARIO....):
-    Genera una aplicación móvil básica y un backend en Firebase. El backend debe permitir administrar usuarios y almacenar información de productos para la venta. La gestión de productos (crear, editar, eliminar) se realizará mediante servicios backend que puedan ser consumidos desde Postman. La aplicación móvil debe incluir una pantalla de inicio de sesión y una pantalla de registro de clientes. Tras iniciar sesión, el usuario accederá a una página inicial que mostrará un listado de productos disponibles para la venta. Esta página debe incorporar una funcionalidad de búsqueda de productos y la capacidad de filtrar los productos por categorías. Desde el listado, el usuario podrá ver el detalle de cada producto y agregarlo a un carro de compras. El carro de compras debe permitir al usuario quitar productos. Además, debe existir una opción para comprar los productos del carro. Al intentar comprar, la aplicación verificará el stock disponible en el backend. Si hay stock suficiente para todos los productos, se HARÁ TOTALMENTE FUNCIONAL la venta, se enviará un correo electrónico de confirmación al cliente y se actualizará el stock en el backend, PARA ESTO ES FIREBASE. Si algún producto no tiene stock, se mostrará un mensaje al usuario indicando qué productos no están disponibles, se eliminarán automáticamente esos productos sin stock del carro, y se permitirá al usuario continuar con el proceso de compra o reiniciar. El desarrollo debe ser lo más simple posible, pero cumpliendo estrictamente con cada una de estas funcionalidades.
-
-
     Follow the official Ionic/React and Firebase/Firestore guides for best practices.
 
     

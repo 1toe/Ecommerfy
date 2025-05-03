@@ -110,7 +110,7 @@ const ProductDetail = () => {
   }, [currentUser, navigate]);
   
   if (!currentUser) {
-    return null; // No renderizar nada mientras redirige
+    return null; 
   }
 
   return (
@@ -176,9 +176,9 @@ const ProductDetail = () => {
                   </div>
                   <div className="flex items-center space-x-2 mb-6">
                     <p className="text-sm">Disponible: {product.stock} unidades</p>
-                    {product.stock < 5 && (
+                    {product.stock === 0 && (
                       <Badge variant="outline" className="text-red-500 border-red-300">
-                        Pocas unidades
+                        Producto agotado hasta nuevo aviso
                       </Badge>
                     )}
                   </div>

@@ -1,9 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { 
-  getProducts, 
-  getProductsByCategory,
-  searchProducts,
   getRealTimeProducts,
+  getProductsByCategory,
+  searchRealTimeProducts,
   getAllCategories
 } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -73,7 +72,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (selectedCategory) {
         result = await getProductsByCategory(selectedCategory);
       } else if (searchTerm) {
-        result = await searchProducts(searchTerm);
+        result = await searchRealTimeProducts(searchTerm);  // Usar searchRealTimeProducts en lugar de searchProducts
       } else {
         result = await getRealTimeProducts();
       }
