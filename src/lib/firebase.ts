@@ -26,7 +26,7 @@ import {
   onValue
 } from "firebase/database";
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { sendOrderConfirmationEmail } from '@/services/email-service';
+import { sendOrderConfirmationEmailMock as sendOrderConfirmationEmail } from '@/services/email-service';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBMIZZmHLlSJyTQP_hvCCfp2dIaIxCgVyw",
@@ -178,12 +178,12 @@ export const getRealTimeProductById = async (id: string) => {
     const categoriesSnapshot = await get(ref(db, 'products'));
     if (categoriesSnapshot.exists()) {
       let foundProduct = null;
-      
+
       // Buscar en cada categoría
       categoriesSnapshot.forEach((categorySnapshot) => {
         const category = categorySnapshot.key;
         const productSnapshot = categorySnapshot.child(id);
-        
+
         if (productSnapshot.exists()) {
           foundProduct = {
             id,
@@ -193,7 +193,7 @@ export const getRealTimeProductById = async (id: string) => {
           return true; // Detiene la iteración
         }
       });
-      
+
       if (foundProduct) {
         return { success: true, product: foundProduct };
       }
@@ -209,16 +209,16 @@ export const createRealTimeProduct = async (category: string, productData: any) 
     const db = getDatabase();
     const productId = productData.id || Date.now().toString();
     const productRef = ref(db, `products/${category}/${productId}`);
-    
+
     // Eliminar la propiedad id si existe (para no duplicarla)
     const { id, ...dataToSave } = productData;
-    
+
     await set(productRef, dataToSave);
-    return { 
-      success: true, 
-      productId, 
-      product: { 
-        ...dataToSave, 
+    return {
+      success: true,
+      productId,
+      product: {
+        ...dataToSave,
         id: productId,
         category
       }
@@ -233,16 +233,16 @@ export const updateRealTimeProduct = async (category: string, id: string, update
     const db = getDatabase();
     const productRef = ref(db, `products/${category}/${id}`);
     await update(productRef, updates);
-    
+
     // Obtener el producto actualizado
     const snapshot = await get(productRef);
     if (snapshot.exists()) {
-      return { 
-        success: true, 
-        product: { 
-          id, 
+      return {
+        success: true,
+        product: {
+          id,
           category,
-          ...snapshot.val() 
+          ...snapshot.val()
         }
       };
     } else {
@@ -287,17 +287,17 @@ export const searchRealTimeProducts = async (searchTerm: string) => {
     if (snapshot.exists()) {
       const products = [];
       const searchTermLower = searchTerm.toLowerCase();
-      
+
       // Buscar en todas las categorías
       snapshot.forEach((categorySnapshot) => {
         const category = categorySnapshot.key;
-        
+
         // Buscar en todos los productos de la categoría
         categorySnapshot.forEach((productSnapshot) => {
           const productData = productSnapshot.val();
           const name = productData.name || '';
           const description = productData.description || '';
-          
+
           if (
             name.toLowerCase().includes(searchTermLower) ||
             description.toLowerCase().includes(searchTermLower)
@@ -310,7 +310,7 @@ export const searchRealTimeProducts = async (searchTerm: string) => {
           }
         });
       });
-      
+
       return { success: true, products };
     }
     return { success: true, products: [] };
@@ -353,21 +353,21 @@ export const addToCart = async (userId: string, productId: string, quantity: num
     // Verificar stock disponible
     const product = productResult.product;
     if (product.stock < quantity) {
-      return { 
-        success: false, 
-        error: `Solo hay ${product.stock} unidades disponibles de este producto` 
+      return {
+        success: false,
+        error: `Solo hay ${product.stock} unidades disponibles de este producto`
       };
     }
 
     // Verificar si el producto ya está en el carrito
     const cartRef = ref(rtdb, `carts/${userId}`);
     const cartSnapshot = await get(cartRef);
-    
+
     if (cartSnapshot.exists()) {
       // Buscar si el producto ya está en el carrito
       let existingItem = null;
       let existingKey = null;
-      
+
       cartSnapshot.forEach((childSnapshot) => {
         const item = childSnapshot.val();
         if (item.productId === productId) {
@@ -376,18 +376,18 @@ export const addToCart = async (userId: string, productId: string, quantity: num
           return true; // Break the loop
         }
       });
-      
+
       if (existingItem && existingKey) {
         // Actualizar cantidad
         const newQuantity = existingItem.quantity + quantity;
         // Verificar que la nueva cantidad no exceda el stock
         if (newQuantity > product.stock) {
-          return { 
-            success: false, 
-            error: `No puedes añadir más unidades. Stock disponible: ${product.stock}` 
+          return {
+            success: false,
+            error: `No puedes añadir más unidades. Stock disponible: ${product.stock}`
           };
         }
-        
+
         await update(ref(rtdb, `carts/${userId}/${existingKey}`), {
           quantity: newQuantity
         });
@@ -409,7 +409,7 @@ export const addToCart = async (userId: string, productId: string, quantity: num
         createdAt: new Date().toISOString()
       });
     }
-    
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -420,19 +420,19 @@ export const getCart = async (userId: string) => {
   try {
     const cartRef = ref(rtdb, `carts/${userId}`);
     const cartSnapshot = await get(cartRef);
-    
+
     if (!cartSnapshot.exists()) {
       return { success: true, cartItems: [] };
     }
-    
+
     // Obtener detalles de los productos
     const cartItems = [];
-    
+
     const promises = [];
     cartSnapshot.forEach((childSnapshot) => {
       const cartItemId = childSnapshot.key;
       const cartItemData = childSnapshot.val();
-      
+
       const promise = getRealTimeProductById(cartItemData.productId)
         .then(result => {
           if (result.success && result.product) {
@@ -443,12 +443,12 @@ export const getCart = async (userId: string) => {
             });
           }
         });
-      
+
       promises.push(promise);
     });
-    
+
     await Promise.all(promises);
-    
+
     return { success: true, cartItems };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -469,34 +469,34 @@ export const updateCartItemQuantity = async (userId: string, cartItemId: string,
     if (quantity <= 0) {
       return await removeFromCart(userId, cartItemId);
     }
-    
+
     // Primero obtenemos el ítem para verificar el producto
     const cartItemRef = ref(rtdb, `carts/${userId}/${cartItemId}`);
     const cartItemSnapshot = await get(cartItemRef);
-    
+
     if (!cartItemSnapshot.exists()) {
       return { success: false, error: "Ítem no encontrado en el carrito" };
     }
-    
+
     const cartItemData = cartItemSnapshot.val();
-    
+
     // Verificar stock del producto
     const productResult = await getRealTimeProductById(cartItemData.productId);
-    
+
     if (!productResult.success || !productResult.product) {
       return { success: false, error: "Producto no encontrado" };
     }
-    
+
     const product = productResult.product;
-    
+
     // Verificar que la cantidad no exceda el stock
     if (quantity > product.stock) {
-      return { 
-        success: false, 
-        error: `No hay suficiente stock. Disponible: ${product.stock}` 
+      return {
+        success: false,
+        error: `No hay suficiente stock. Disponible: ${product.stock}`
       };
     }
-    
+
     await update(cartItemRef, { quantity });
     return { success: true };
   } catch (error: any) {
@@ -511,9 +511,9 @@ export const processCheckout = async (userId: string, userEmail: string) => {
     const { success, cartItems, error } = await getCart(userId);
 
     if (!success || !cartItems || cartItems.length === 0) {
-      return { 
-        success: false, 
-        error: error || "El carrito está vacío o no se pudo obtener" 
+      return {
+        success: false,
+        error: error || "El carrito está vacío o no se pudo obtener"
       };
     }
 
@@ -523,10 +523,10 @@ export const processCheckout = async (userId: string, userEmail: string) => {
 
     for (const item of cartItems) {
       const product = item.product;
-      
+
       // Verificamos de nuevo el stock actual (puede haber cambiado desde que se cargó el carrito)
       const freshProductResult = await getRealTimeProductById(product.id);
-      
+
       if (!freshProductResult.success) {
         outOfStockItems.push({
           productId: product.id,
@@ -538,9 +538,9 @@ export const processCheckout = async (userId: string, userEmail: string) => {
         });
         continue;
       }
-      
+
       const freshProduct = freshProductResult.product;
-      
+
       if (freshProduct.stock >= item.quantity) {
         validItems.push({
           ...item,
@@ -570,16 +570,16 @@ export const processCheckout = async (userId: string, userEmail: string) => {
     // 4. Procesar la compra (actualizar stock)
     const orderItems = [];
     let total = 0;
-    
+
     for (const item of validItems) {
       const product = item.product;
       const category = product.category;
-      
+
       // Actualizar stock en Realtime Database
       await update(ref(rtdb, `products/${category}/${product.id}`), {
         stock: product.stock - item.quantity
       });
-      
+
       // Preparar datos para la orden
       orderItems.push({
         productId: product.id,
@@ -589,9 +589,9 @@ export const processCheckout = async (userId: string, userEmail: string) => {
         quantity: item.quantity,
         subtotal: product.price * item.quantity
       });
-      
+
       total += product.price * item.quantity;
-      
+
       // Eliminar del carrito
       await removeFromCart(userId, item.id);
     }
@@ -608,8 +608,9 @@ export const processCheckout = async (userId: string, userEmail: string) => {
 
     const newOrderRef = push(ref(rtdb, 'orders'));
     await set(newOrderRef, orderData);
-    
-    // 6. Enviar correo electrónico de confirmación usando nuestro servicio simplificado
+
+    // 6. Enviar correo electrónico de confirmación usando nuestro servicio mock
+    // (temporalmente mientras configuramos EmailJS correctamente)
     try {
       const emailResult = await sendOrderConfirmationEmail({
         orderId: newOrderRef.key || 'unknown',
@@ -620,7 +621,7 @@ export const processCheckout = async (userId: string, userEmail: string) => {
       });
 
       if (!emailResult.success) {
-        console.warn('Advertencia: No se pudo enviar el correo de confirmación:', emailResult.error);
+        console.warn('Advertencia: No se pudo enviar el correo de confirmación:');
         // No fallamos el checkout si el correo falla
       }
     } catch (emailError: any) {

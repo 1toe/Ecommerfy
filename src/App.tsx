@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import EmailJsInitializer from '@/components/EmailJsInitializer';
 
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProductProvider } from "./contexts/ProductContext";
@@ -17,9 +18,14 @@ import OrderSuccess from "./pages/OrderSuccess";
 
 const queryClient = new QueryClient();
 
+// Configuración de EmailJS se importa desde las variables de entorno
+const emailJsPublicKey = "JWo9NZfMPxqB-MI_a";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      {/* Inicializar EmailJS al cargar la aplicación */}
+      <EmailJsInitializer publicKey={emailJsPublicKey} />
       <Toaster />
       <Sonner />
       <AuthProvider>
@@ -32,7 +38,6 @@ const App = () => (
                 <Route path="/register" element={<Register />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/order/success/:orderId" element={<OrderSuccess />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
