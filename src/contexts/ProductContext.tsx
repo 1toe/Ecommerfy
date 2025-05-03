@@ -1,6 +1,11 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getProducts, getProductsByCategory, searchProducts } from '@/lib/firebase';
+import { 
+  getProducts, 
+  getProductsByCategory,
+  searchProducts,
+  getRealTimeProducts,
+  getAllCategories
+} from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 interface Product {
@@ -56,26 +61,31 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setError(null);
 
     try {
+      // Primero obtenemos todas las categorías disponibles
+      const categoriesResult = await getAllCategories();
+      if (categoriesResult.success) {
+        setCategories(categoriesResult.categories || []);
+      }
+
       let result;
       
+      // Luego obtenemos los productos según el filtro
       if (selectedCategory) {
         result = await getProductsByCategory(selectedCategory);
       } else if (searchTerm) {
         result = await searchProducts(searchTerm);
       } else {
-        result = await getProducts();
+        result = await getRealTimeProducts();
       }
 
       if (result.success && result.products) {
-        setProducts(result.products);
-        setFilteredProducts(result.products);
+        // Filtrar productos inválidos
+        const validProducts = result.products.filter(prod => 
+          prod && prod.name && typeof prod.price === 'number'
+        );
         
-        if (!selectedCategory && !searchTerm) {
-          const uniqueCategories = Array.from(
-            new Set(result.products.map((product: Product) => product.category))
-          );
-          setCategories(uniqueCategories);
-        }
+        setProducts(validProducts);
+        setFilteredProducts(validProducts);
       } else {
         setError(result.error || 'Error al cargar productos');
         toast({

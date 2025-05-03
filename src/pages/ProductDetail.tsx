@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById } from '@/lib/firebase';
+import { getRealTimeProductById } from '@/lib/firebase';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +40,7 @@ const ProductDetail = () => {
       }
 
       try {
-        const { success, product: fetchedProduct, error: productError } = await getProductById(id);
+        const { success, product: fetchedProduct, error: productError } = await getRealTimeProductById(id);
         
         if (success && fetchedProduct) {
           setProduct(fetchedProduct as Product);

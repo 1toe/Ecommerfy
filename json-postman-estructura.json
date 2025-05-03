@@ -1,0 +1,230 @@
+{
+	"info": {
+		"_postman_id": "d62e6d38-1896-4a56-a9c3-6088efbc60b6",
+		"name": "API Productos Tecnológicos Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44636436",
+		"_collection_link": "https://admin-8327628.postman.co/workspace/ADMIN's-Workspace~107374a5-9225-433b-8a4b-da290e707376/collection/44636436-d62e6d38-1896-4a56-a9c3-6088efbc60b6?action=share&source=collection_link&creator=44636436"
+	},
+	"item": [
+		{
+			"name": "🔥 Firebase - Obtener todos los productos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://app-334-default-rtdb.firebaseio.com/products.json",
+					"protocol": "https",
+					"host": [
+						"app-334-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"products.json"
+					]
+				},
+				"description": "Obtiene todos los productos directamente de Firebase Realtime Database"
+			},
+			"response": []
+		},
+		{
+			"name": "🔥 Firebase - Obtener producto por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://app-334-default-rtdb.firebaseio.com/products/{{productId}}.json",
+					"protocol": "https",
+					"host": [
+						"app-334-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"products",
+						"{{productId}}.json"
+					]
+				},
+				"description": "Obtiene un producto específico directamente de Firebase Realtime Database"
+			},
+			"response": []
+		},
+		{
+			"name": "🔥 Firebase - Crear/Reemplazar productos (ESTRUCTURA CATEGORIAS)",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"electrónica\": {\n    \"Smartphone Samsung Galaxy S23\": {\n      \"id\": \"1\",\n      \"description\": \"Smartphone de última generación con 8GB RAM y 256GB almacenamiento\",\n      \"price\": 799990,\n      \"stock\": 15\n    },\n    \"Smart TV LG OLED C3 55 pulgadas\": {\n      \"id\": \"13\",\n      \"description\": \"Smart TV OLED 4K con colores intensos y negros perfectos\",\n      \"price\": 1599990,\n      \"stock\": 9\n    },\n    \"Proyector Epson Home Cinema 4010\": {\n      \"id\": \"14\",\n      \"description\": \"Proyector 4K PRO-UHD con alto brillo y contraste\",\n      \"price\": 2199990,\n      \"stock\": 4\n    }\n  },\n  \"computación\": {\n    \"Laptop Dell XPS 15\": {\n      \"id\": \"2\",\n      \"description\": \"Laptop de alto rendimiento con Intel Core i7, 16GB RAM y 512GB SSD\",\n      \"price\": 1349990,\n      \"stock\": 8\n    }\n  },\n  \"wearables\": {\n    \"Smartwatch Apple Watch Series 8\": {\n      \"id\": \"3\",\n      \"description\": \"Reloj inteligente con GPS, monitor de frecuencia cardíaca y notificaciones\",\n      \"price\": 359990,\n      \"stock\": 22\n    }\n  },\n  \"audio\": {\n    \"Auriculares Sony WH-1000XM5\": {\n      \"id\": \"4\",\n      \"description\": \"Auriculares inalámbricos con cancelación de ruido y sonido de alta fidelidad\",\n      \"price\": 319990,\n      \"stock\": 18\n    }\n  },\n  \"tablets\": {\n    \"Tablet iPad Pro 12.9 pulgadas\": {\n      \"id\": \"5\",\n      \"description\": \"Tablet profesional con chip M2, 128GB almacenamiento y pantalla Liquid Retina XDR\",\n      \"price\": 989990,\n      \"stock\": 12\n    }\n  },\n  \"impresión 3d\": {\n    \"Impresora 3D Creality Ender 3 V2\": {\n      \"id\": \"6\",\n      \"description\": \"Impresora 3D de escritorio con volumen de construcción de 220x220x250mm\",\n      \"price\": 269990,\n      \"stock\": 7\n    }\n  },\n  \"fotografía\": {\n    \"Cámara Mirrorless Sony Alpha a7 III\": {\n      \"id\": \"7\",\n      \"description\": \"Cámara sin espejo de fotograma completo con sensor de 24.2MP y grabación 4K\",\n      \"price\": 1799990,\n      \"stock\": 5\n    }\n  },\n  \"hogar inteligente\": {\n    \"Asistente Virtual Amazon Echo Dot (5ta Gen)\": {\n      \"id\": \"8\",\n      \"description\": \"Altavoz inteligente con Alexa para controlar dispositivos y reproducir música\",\n      \"price\": 44990,\n      \"stock\": 30\n    }\n  },\n  \"componentes de pc\": {\n    \"Tarjeta Gráfica NVIDIA GeForce RTX 4080\": {\n      \"id\": \"9\",\n      \"description\": \"Tarjeta gráfica de alto rendimiento para juegos y creación de contenido\",\n      \"price\": 1079990,\n      \"stock\": 3\n    }\n  },\n  \"periféricos\": {\n    \"Monitor Curvo Samsung Odyssey G7\": {\n      \"id\": \"10\",\n      \"description\": \"Monitor gaming curvo de 27 pulgadas con resolución QHD y 240Hz\",\n      \"price\": 499990,\n      \"stock\": 10\n    },\n    \"Teclado Mecánico Logitech G915\": {\n      \"id\": \"11\",\n      \"description\": \"Teclado mecánico inalámbrico RGB de perfil bajo para gaming\",\n      \"price\": 229990,\n      \"stock\": 14\n    },\n    \"Mouse Gaming Razer Basilisk V3\": {\n      \"id\": \"12\",\n      \"description\": \"Mouse ergonómico para gaming con 11 botones programables y rueda Hyperscroll\",\n      \"price\": 79990,\n      \"stock\": 25\n    }\n  },\n  \"videojuegos\": {\n    \"Consola PlayStation 5\": {\n      \"id\": \"15\",\n      \"description\": \"Consola de videojuegos de última generación con gráficos de alta fidelidad\",\n      \"price\": 599990,\n      \"stock\": 11\n    },\n    \"Consola Xbox Series X\": {\n      \"id\": \"16\",\n      \"description\": \"Consola de videojuegos de alta potencia con tiempos de carga rápidos\",\n      \"price\": 549990,\n      \"stock\": 13\n    }\n  },\n  \"drones\": {\n    \"Drone DJI Mavic 3 Pro\": {\n      \"id\": \"17\",\n      \"description\": \"Drone profesional con triple cámara y tiempo de vuelo de hasta 43 minutos\",\n      \"price\": 2999990,\n      \"stock\": 2\n    }\n  },\n  \"accesorios móviles\": {\n    \"Gimbal para Smartphone DJI Osmo Mobile 6\": {\n      \"id\": \"18\",\n      \"description\": \"Estabilizador de 3 ejes para grabaciones de video fluidas con smartphone\",\n      \"price\": 149990,\n      \"stock\": 17\n    }\n  },\n  \"redes\": {\n    \"Router WiFi 6 ASUS RT-AX82U\": {\n      \"id\": \"19\",\n      \"description\": \"Router inalámbrico de doble banda con alta velocidad y baja latencia\",\n      \"price\": 179990,\n      \"stock\": 20\n    }\n  },\n  \"almacenamiento\": {\n    \"Disco Duro Externo SSD Samsung T7 Shield 2TB\": {\n      \"id\": \"20\",\n      \"description\": \"Unidad de estado sólido externa portátil y resistente de 2TB\",\n      \"price\": 329990,\n      \"stock\": 16\n    }\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://app-334-default-rtdb.firebaseio.com/products.json",
+					"protocol": "https",
+					"host": [
+						"app-334-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"products.json"
+					]
+				},
+				"description": "Crea o reemplaza todos los productos con la estructura de categorías."
+			},
+			"response": []
+		},
+		{
+			"name": "🔥 Firebase - Actualizar producto",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"price\": 849.99,\n  \"stock\": 12\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://app-334-default-rtdb.firebaseio.com/products/{{productId}}.json",
+					"protocol": "https",
+					"host": [
+						"app-334-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"products",
+						"{{productId}}.json"
+					]
+				},
+				"description": "Actualiza un producto existente directamente en Firebase Realtime Database"
+			},
+			"response": []
+		},
+		{
+			"name": "🔥 Firebase - Eliminar producto",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://app-334-default-rtdb.firebaseio.com/products/{{productId}}.json",
+					"protocol": "https",
+					"host": [
+						"app-334-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"products",
+						"{{productId}}.json"
+					]
+				},
+				"description": "Elimina un producto directamente de Firebase Realtime Database"
+			},
+			"response": []
+		},
+		{
+			"name": "🔥 Firebase - Obtener último ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://app-334-default-rtdb.firebaseio.com/lastId.json",
+					"protocol": "https",
+					"host": [
+						"app-334-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"lastId.json"
+					]
+				},
+				"description": "Obtiene el último ID utilizado para poder incrementarlo"
+			},
+			"response": []
+		},
+		{
+			"name": "🔥 Firebase - Actualizar último ID",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"value\": {{nextId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://app-334-default-rtdb.firebaseio.com/lastId.json",
+					"protocol": "https",
+					"host": [
+						"app-334-default-rtdb",
+						"firebaseio",
+						"com"
+					],
+					"path": [
+						"lastId.json"
+					]
+				},
+				"description": "Actualiza el último ID después de crear un producto"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "firebaseDb",
+			"value": "https://app-334-default-rtdb.firebaseio.com",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": "-OPK8HyUSGFABItgMngh",
+			"type": "string"
+		},
+		{
+			"key": "nextId",
+			"value": "3",
+			"type": "string"
+		}
+	]
+}

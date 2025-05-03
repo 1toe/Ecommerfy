@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
@@ -49,6 +48,10 @@ const Index = () => {
     }
   };
   
+  const refreshProducts = () => {
+    window.location.reload();
+  };
+
   // Si no hay un usuario autenticado, redirigir a /login
   React.useEffect(() => {
     if (!currentUser) {
@@ -125,13 +128,15 @@ const Index = () => {
 
         {/* Product list */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-pulse">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <Card key={index} className="h-64">
-                <CardContent className="flex flex-col items-center justify-center h-full">
-                  <div className="w-full h-32 bg-gray-300 rounded-md mb-4"></div>
-                  <div className="w-2/3 h-4 bg-gray-300 rounded mb-2"></div>
-                  <div className="w-1/3 h-4 bg-gray-300 rounded"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* Skeleton loading */}
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+              <Card key={i} className="overflow-hidden">
+                <div className="h-48 bg-gray-300 animate-pulse"></div>
+                <CardContent className="p-4 space-y-2">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-2/3 animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/3 animate-pulse"></div>
                 </CardContent>
               </Card>
             ))}
@@ -139,7 +144,7 @@ const Index = () => {
         ) : error ? (
           <div className="text-center text-red-600 p-6 bg-red-100 rounded-md">
             <p>{error}</p>
-            <Button className="mt-4" variant="outline" onClick={() => window.location.reload()}>
+            <Button className="mt-4" variant="outline" onClick={refreshProducts}>
               Intentar de nuevo
             </Button>
           </div>
