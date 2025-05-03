@@ -70,7 +70,6 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setProducts(result.products);
         setFilteredProducts(result.products);
         
-        // Extract unique categories
         if (!selectedCategory && !searchTerm) {
           const uniqueCategories = Array.from(
             new Set(result.products.map((product: Product) => product.category))
@@ -97,12 +96,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Efecto inicial para cargar todos los productos
   useEffect(() => {
     refreshProducts();
   }, []);
 
-  // Efecto para filtrar productos cuando cambia la categoría o término de búsqueda
   useEffect(() => {
     refreshProducts();
   }, [selectedCategory, searchTerm]);

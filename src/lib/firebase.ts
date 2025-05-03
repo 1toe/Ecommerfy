@@ -1,16 +1,27 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit
+} from "firebase/firestore";
 
-// Configuración de Firebase (normalmente se colocaría en variables de entorno)
 const firebaseConfig = {
-  apiKey: "AIzaSyDemoKeyForTestingPurposes",
-  authDomain: "shopper-cart.firebaseapp.com",
-  projectId: "shopper-cart",
-  storageBucket: "shopper-cart.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdefghijklmnopqrstuv"
+  apiKey: "AIzaSyBMIZZmHLlSJyTQP_hvCCfp2dIaIxCgVyw",
+  authDomain: "app-334.firebaseapp.com",
+  projectId: "app-334",
+  storageBucket: "app-334.firebasestorage.app",
+  messagingSenderId: "512446977355",
+  appId: "1:512446977355:web:4769f6cf58c46b8b2c44ce"
 };
 
 // Inicializar Firebase
@@ -65,7 +76,7 @@ export const getProductById = async (id: string) => {
   try {
     const productDoc = doc(db, "products", id);
     const productSnapshot = await getDoc(productDoc);
-    
+
     if (productSnapshot.exists()) {
       const product = { id: productSnapshot.id, ...productSnapshot.data() };
       return { success: true, product };
@@ -93,13 +104,12 @@ export const getProductsByCategory = async (category: string) => {
 };
 
 export const searchProducts = async (searchTerm: string) => {
-  // En una implementación real, usaríamos Firebase Functions o Algolia para búsquedas más sofisticadas
   try {
     const { success, products } = await getProducts();
-    
+
     if (success && products) {
-      const filteredProducts = products.filter((product: any) => 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      const filteredProducts = products.filter((product: any) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
       return { success: true, products: filteredProducts };
@@ -117,7 +127,7 @@ export const addToCart = async (userId: string, productId: string, quantity: num
     const cartCollection = collection(db, "carts");
     const q = query(cartCollection, where("userId", "==", userId), where("productId", "==", productId));
     const cartSnapshot = await getDocs(q);
-    
+
     if (!cartSnapshot.empty) {
       // Actualizar cantidad
       const cartItemDoc = cartSnapshot.docs[0];
@@ -145,13 +155,13 @@ export const getCart = async (userId: string) => {
     const cartCollection = collection(db, "carts");
     const q = query(cartCollection, where("userId", "==", userId));
     const cartSnapshot = await getDocs(q);
-    
+
     // Obtener detalles de los productos
     const cartItems = [];
     for (const cartDoc of cartSnapshot.docs) {
       const cartItem = cartDoc.data();
       const productDoc = await getDoc(doc(db, "products", cartItem.productId));
-      
+
       if (productDoc.exists()) {
         cartItems.push({
           id: cartDoc.id,
@@ -160,7 +170,7 @@ export const getCart = async (userId: string) => {
         });
       }
     }
-    
+
     return { success: true, cartItems };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -194,15 +204,15 @@ export const processCheckout = async (userId: string) => {
   try {
     // 1. Obtener carrito de compras
     const { success, cartItems, error } = await getCart(userId);
-    
+
     if (!success || !cartItems) {
       return { success: false, error: error || "Error al obtener el carrito" };
     }
-    
+
     // 2. Verificar stock para cada producto
     const outOfStockItems = [];
     const validItems = [];
-    
+
     for (const item of cartItems) {
       const product = item.product;
       if (product.stock >= item.quantity) {
@@ -217,14 +227,14 @@ export const processCheckout = async (userId: string) => {
         });
       }
     }
-    
+
     // 3. Si hay productos sin stock, informar al usuario y eliminarlos del carrito
     if (outOfStockItems.length > 0) {
       // Eliminar items sin stock del carrito
       for (const item of outOfStockItems) {
         await removeFromCart(item.cartItemId);
       }
-      
+
       return {
         success: false,
         error: "Algunos productos no tienen suficiente stock",
@@ -232,18 +242,18 @@ export const processCheckout = async (userId: string) => {
         remainingItems: validItems.length
       };
     }
-    
+
     // 4. Procesar la compra (actualizar stock)
     for (const item of validItems) {
       const product = item.product;
       await updateDoc(doc(db, "products", product.id), {
         stock: product.stock - item.quantity
       });
-      
+
       // Eliminar del carrito
       await removeFromCart(item.id);
     }
-    
+
     // 5. Crear orden
     const orderData = {
       userId,
@@ -257,12 +267,9 @@ export const processCheckout = async (userId: string) => {
       createdAt: new Date(),
       status: "completed"
     };
-    
+
     const orderRef = await addDoc(collection(db, "orders"), orderData);
-    
-    // 6. Simular envío de email
-    console.log(`Email enviado a usuario ${userId}: Confirmación de compra #${orderRef.id}`);
-    
+
     return {
       success: true,
       orderId: orderRef.id,
@@ -273,7 +280,24 @@ export const processCheckout = async (userId: string) => {
   }
 };
 
-export const getAuth = () => auth;
-export const getDb = () => db;
+// Obtener registros de valores
+export const getRegistrosValores = async (limite = 100) => {
+  try {
+    const registrosCollection = collection(db, "registros_valores");
+    const q = query(registrosCollection, orderBy("timestamp", "desc"), limit(limite));
+    const registrosSnapshot = await getDocs(q);
+    const registros = registrosSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return { success: true, registros };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Exportar servicios de Firebase
+export const getFirebaseAuth = () => auth;
+export const getFirebaseDb = () => db;
 
 export default { auth, db };

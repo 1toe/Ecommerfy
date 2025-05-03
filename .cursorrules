@@ -1,0 +1,67 @@
+
+    You are an expert in Ionic, React, and Firebase Firestore.
+
+    Project Structure and File Naming
+    - Organize by feature directories (e.g., 'services/', 'components/', 'pipes/')
+  
+    ## Project Structure and Organization
+    - Use descriptive names for variables and functions (e.g 'getUsers', 'calculateTotalPrice').
+    - Avoid global state when possible.
+    - Manage routing through a dedicated module
+    - Centralize API calls and error handling through services
+    - Manage all storage through single point of entry and retrievals. Also put storage keys at single to check and find.
+    - Create dedicated Firebase services for each collection type
+    - Implement Firebase error handling in a centralized service
+    - Use Firebase transactions for data consistency
+    - Use Firebase rules for data security
+    - Use Firebase functions for serverless backend logic
+    - Use Firebase storage for file uploads and downloads
+    - Use Firebase authentication for user management
+    - Use Firebase analytics for tracking user behavior
+    - Use Firebase crash reporting for error tracking
+    - Structure Firestore queries for optimal performance
+    
+    ## Naming Conventions
+    - camelCase: functions, variables (e.g., `getUsers`, `totalPrice`)
+    - kebab-case: file names (e.g., `user-service.ts`, `home-component.ts`)
+    - PascalCase: classes (e.g., `UserService`)
+    - Booleans: use prefixes like 'should', 'has', 'is' (e.g., `shouldLoadData`, `isLoading`).
+    - UPPERCASE: constants and global variables (e.g., `API_URL`, `APP_VERSION`).
+    - Firestore collections: plural nouns (e.g., `users`, `bookings`).
+    - Firestore documents: descriptive IDs (e.g., `user-${uid}`, `booking-${timestamp}`).
+    - ANY COMENTS needs to be IN SPANISH!.
+    
+    ## UI and Styles
+    - Prefer Ionic components.
+    - Create reusable components for complex UI.
+    - Use CSS for styling.
+    - Centralize themes, colors, and fonts.
+    - Implement loading states for Firebase operations.
+    - Handle Firebase offline data gracefully.
+    - Show appropriate error messages for Firebase operations.
+    - Implement real-time UI updates with Firebase snapshots.
+
+    ## Performance and Optimization
+    - Implement lazy loading.
+    - Use pre-fetching for critical data.
+    - Use caching for all the data that is needed multiple times.
+    - Use global error and alert handlers.
+    - Integrate any crash reporting service for the application.
+    - Use a centralised alert handler to handle all the alert in the application.
+    - Implement Firebase offline persistence.
+    - Use Firebase query cursors for pagination.
+    - Optimize Firestore reads with proper indexing.
+    - Cache Firestore query results.
+    - Use Firestore batch operations for bulk updates.
+    - Monitor Firestore quota usage.
+
+
+
+
+    OBJETIVO (verifica la implementacion de algunas cosas, ya que alguna están pero OTRAS NO y NO ESTÁN FUNCIONALES POR LO QUE DEBERÁS AGREGA EN CASO DE SER NECESARIO....):
+    Genera una aplicación móvil básica y un backend en Firebase. El backend debe permitir administrar usuarios y almacenar información de productos para la venta. La gestión de productos (crear, editar, eliminar) se realizará mediante servicios backend que puedan ser consumidos desde Postman. La aplicación móvil debe incluir una pantalla de inicio de sesión y una pantalla de registro de clientes. Tras iniciar sesión, el usuario accederá a una página inicial que mostrará un listado de productos disponibles para la venta. Esta página debe incorporar una funcionalidad de búsqueda de productos y la capacidad de filtrar los productos por categorías. Desde el listado, el usuario podrá ver el detalle de cada producto y agregarlo a un carro de compras. El carro de compras debe permitir al usuario quitar productos. Además, debe existir una opción para comprar los productos del carro. Al intentar comprar, la aplicación verificará el stock disponible en el backend. Si hay stock suficiente para todos los productos, se HARÁ TOTALMENTE FUNCIONAL la venta, se enviará un correo electrónico de confirmación al cliente y se actualizará el stock en el backend, PARA ESTO ES FIREBASE. Si algún producto no tiene stock, se mostrará un mensaje al usuario indicando qué productos no están disponibles, se eliminarán automáticamente esos productos sin stock del carro, y se permitirá al usuario continuar con el proceso de compra o reiniciar. El desarrollo debe ser lo más simple posible, pero cumpliendo estrictamente con cada una de estas funcionalidades.
+
+
+    Follow the official Ionic/React and Firebase/Firestore guides for best practices.
+
+    
