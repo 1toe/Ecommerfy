@@ -14,12 +14,12 @@ interface OrderEmailData {
     createdAt: string;
 }
 
-// Obtener las variables de entorno
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+// Configuración correcta de EmailJS
+const SERVICE_ID = "service_m4b2a8u";
+const TEMPLATE_ID = "template_grusq6b"; // ID correcto de la plantilla "Order Confirmed"
+const PUBLIC_KEY = "JWo9NZfMPxqB-MI_a";
 
-// Inicializar EmailJS con la clave pública desde las variables de entorno
+// Inicializar EmailJS con la clave pública
 emailjs.init(PUBLIC_KEY);
 
 export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Promise<{ success: boolean, error?: string }> => {
@@ -46,32 +46,31 @@ export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Pro
             </table>
         `;
 
-        // Parámetros para la plantilla
+        // Formato simple para EmailJS - lo importante es incluir correctamente los campos
         const templateParams = {
             to_name: orderData.userName || orderData.userEmail.split('@')[0],
+            to_email: orderData.userEmail, 
             order_id: orderData.orderId,
             order_date: new Date(orderData.createdAt).toLocaleDateString(),
             items_table: tableHtml,
-            total_amount: orderData.total.toFixed(2),
-            to_email: orderData.userEmail // Cambiamos 'email' por 'to_email' para que coincida con la plantilla
+            total_amount: orderData.total.toFixed(2)
         };
 
+        console.log('Enviando email con params:', JSON.stringify(templateParams));
+        
+        // Solución: En EmailJS, debes configurar el "recipient" en la plantilla en el panel de EmailJS
+        // y no en el código. El correo se enviará usando la plantilla configurada.
         const response = await emailjs.send(
             SERVICE_ID,
             TEMPLATE_ID,
             templateParams
         );
 
-        console.log('Email enviado correctamente:', response);
-
-        if (response.status === 200) {
-            return { success: true };
-        } else {
-            console.error('Error al enviar el correo: Estado inesperado', response);
-            return { success: false, error: 'Error al enviar el correo' };
-        }
+        console.log('Respuesta de EmailJS:', response);
+        
+        return { success: true };
     } catch (error: any) {
-        console.error('Error al enviar el correo:', error);
+        console.error('Error detallado en EmailJS:', error);
         return { success: false, error: error.message };
     }
 };

@@ -26,7 +26,7 @@ import {
   onValue
 } from "firebase/database";
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { sendOrderConfirmationEmailMock as sendOrderConfirmationEmail } from '@/services/email-service';
+import { sendOrderConfirmationEmail } from '@/services/email-service';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBMIZZmHLlSJyTQP_hvCCfp2dIaIxCgVyw",
