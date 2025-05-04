@@ -54,7 +54,6 @@ const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
 
     try {
       const userEmail = currentUser.email || '';
-      // Pasamos el email del usuario para el envío del correo
       const result = await processCheckout(currentUser.uid, userEmail);
 
       if (result.success) {
@@ -65,7 +64,6 @@ const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
         await refreshCart();
         onClose();
         
-        // Redirigir a la página de éxito con el ID de la orden
         navigate(`/order/success/${result.orderId}`);
       } else if (result.outOfStockItems) {
         setOutOfStockItems(result.outOfStockItems);
@@ -223,7 +221,6 @@ const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
         </SheetContent>
       </Sheet>
       
-      {/* Dialog de confirmación */}
       <AlertDialog open={confirmDialog} onOpenChange={setConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -241,7 +238,6 @@ const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
         </AlertDialogContent>
       </AlertDialog>
       
-      {/* Dialog de productos sin stock */}
       <AlertDialog open={outOfStockDialog} onOpenChange={setOutOfStockDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

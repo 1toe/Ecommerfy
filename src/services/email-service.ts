@@ -14,17 +14,14 @@ interface OrderEmailData {
     createdAt: string;
 }
 
-// Configuración de EmailJS
 const SERVICE_ID = "service_m4b2a8u";
 const TEMPLATE_ID = "template_grusq6b";
 const PUBLIC_KEY = "JWo9NZfMPxqB-MI_a";
 
-// Inicializar EmailJS
 emailjs.init(PUBLIC_KEY);
 
 export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Promise<{ success: boolean, error?: string }> => {
     try {
-        // Generar HTML para la tabla de productos
         const itemsRows = orderData.items.map(item => `
             <tr style="border-bottom: 1px solid #eee;">
                 <td style="padding: 8px; text-align: left;">${item.name}</td>
@@ -56,7 +53,6 @@ export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Pro
             </table>
         `;
 
-        // Parámetros para la plantilla
         const templateParams = {
             to_name: orderData.userName || orderData.userEmail.split('@')[0],
             to_email: orderData.userEmail,
@@ -68,9 +64,6 @@ export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Pro
 
         console.log('Enviando email con params:', JSON.stringify(templateParams));
 
-        // IMPORTANTE: Para que el HTML se renderice correctamente en EmailJS:
-        // 1. La plantilla debe tener habilitada la opción "Enable HTML content"
-        // 2. Para insertar HTML en la plantilla, usa TRIPLE LLAVES: {{{items_table}}} en lugar de {{items_table}}
         const response = await emailjs.send(
             SERVICE_ID,
             TEMPLATE_ID,

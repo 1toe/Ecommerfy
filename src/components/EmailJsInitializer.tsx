@@ -15,7 +15,6 @@ const EmailJsInitializer = ({ publicKey }: EmailJsInitializerProps) => {
     }
   }, [publicKey]);
 
-  // Este componente no renderiza nada
   return null;
 };
 

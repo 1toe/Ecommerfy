@@ -32,7 +32,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
     addItem(product.id, 1);
   };
   
-  // Determinar un icono basado en la categoría
   const getCategoryIcon = () => {
     const categoryLower = product.category?.toLowerCase() || '';
     
