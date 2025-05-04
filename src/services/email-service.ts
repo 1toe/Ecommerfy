@@ -49,7 +49,7 @@ export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Pro
         // Formato simple para EmailJS - lo importante es incluir correctamente los campos
         const templateParams = {
             to_name: orderData.userName || orderData.userEmail.split('@')[0],
-            to_email: orderData.userEmail, 
+            to_email: orderData.userEmail,
             order_id: orderData.orderId,
             order_date: new Date(orderData.createdAt).toLocaleDateString(),
             items_table: tableHtml,
@@ -57,7 +57,7 @@ export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Pro
         };
 
         console.log('Enviando email con params:', JSON.stringify(templateParams));
-        
+
         // Solución: En EmailJS, debes configurar el "recipient" en la plantilla en el panel de EmailJS
         // y no en el código. El correo se enviará usando la plantilla configurada.
         const response = await emailjs.send(
@@ -67,7 +67,7 @@ export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Pro
         );
 
         console.log('Respuesta de EmailJS:', response);
-        
+
         return { success: true };
     } catch (error: any) {
         console.error('Error detallado en EmailJS:', error);
@@ -75,10 +75,8 @@ export const sendOrderConfirmationEmail = async (orderData: OrderEmailData): Pro
     }
 };
 
-// Función alternativa que usa un servicio mock para desarrollo
 export const sendOrderConfirmationEmailMock = async (orderData: OrderEmailData): Promise<{ success: boolean }> => {
 
-    // Simulamos un pequeño retraso como en una API real
     await new Promise(resolve => setTimeout(resolve, 500));
 
     return { success: true };
