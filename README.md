@@ -1,25 +1,23 @@
-# Shopper Cart - Aplicación de Compras
+# ShopAPP
 
-## Documentación de la API para Postman
+## API Documentation with Postman
 
-### Configuración de Autenticación
+### Authentication Setup
 
-Para los endpoints protegidos, necesitarás incluir un token de Firebase en el header `Authorization`:
+For protected endpoints, you will need to include a Firebase token in the `Authorization` header:
 
 ```
-Authorization: Bearer <tu-token-firebase>
+Authorization: Bearer <your-firebase-token>
 ```
 
-Para obtener un token, puedes iniciar sesión en la aplicación y usar la consola del navegador para obtener el token de auth.currentUser.
+### Product Endpoints (Local API)
 
-### Endpoints de Productos (API Local)
-
-#### Obtener todos los productos
+#### Get all products
 
 - **URL**: `/api/products`
-- **Método**: GET
-- **Auth**: Requiere token
-- **Respuesta exitosa**:
+- **Method**: GET
+- **Auth**: Token required
+- **Successful Response**:
 
 ```json
 {
@@ -27,55 +25,53 @@ Para obtener un token, puedes iniciar sesión en la aplicación y usar la consol
   "products": [
     {
       "id": "abc123",
-      "name": "Producto 1",
-      "description": "Descripción del producto",
+      "name": "Product 1",
+      "description": "Product description",
       "price": 19.99,
-      "category": "electrónica",
+      "category": "electronics",
       "stock": 10
     }
   ]
 }
 ```
 
-#### Obtener un producto específico
+#### Get a specific product
 
 - **URL**: `/api/products/:id`
-- **Método**: GET
-- **Auth**: Requiere token
-- **Respuesta exitosa**:
+- **Method**: GET
+- **Auth**: Token required
+- **Successful Response**:
 
 ```json
 {
   "success": true,
   "product": {
     "id": "abc123",
-    "name": "Producto 1",
-    "description": "Descripción del producto",
+    "name": "Product 1",
+    "description": "Product description",
     "price": 19.99,
-    "category": "electrónica",
+    "category": "electronics",
     "stock": 10
   }
 }
 ```
-
-#### Crear un producto nuevo (solo admin)
-
-- **URL**: `/api/products`
-- **Método**: POST
-- **Auth**: Requiere token de administrador
+#### Create a new product as admin
+ * **URL**: `/api/products`
+- **Method**: POST
+- **Auth**: Admin token required
 - **Body**:
 
 ```json
 {
-  "name": "Nuevo Producto",
-  "description": "Descripción del nuevo producto",
+  "name": "New Product",
+  "description": "Description of the new product",
   "price": 29.99,
-  "category": "hogar",
+  "category": "home",
   "stock": 5
 }
 ```
 
-- **Respuesta exitosa**:
+- **Successful Response**:
 
 ```json
 {
@@ -83,66 +79,66 @@ Para obtener un token, puedes iniciar sesión en la aplicación y usar la consol
   "productId": "xyz789",
   "product": {
     "id": "xyz789",
-    "name": "Nuevo Producto",
-    "description": "Descripción del nuevo producto",
+    "name": "New Product",
+    "description": "Description of the new product",
     "price": 29.99,
-    "category": "hogar",
+    "category": "home",
     "stock": 5
   }
 }
 ```
 
-#### Actualizar un producto (solo admin)
+#### Update a product (admin only)
 
 - **URL**: `/api/products/:id`
-- **Método**: PUT
-- **Auth**: Requiere token de administrador
+- **Method**: PUT
+- **Auth**: Admin token required
 - **Body**:
 
 ```json
 {
-  "name": "Producto Actualizado",
+  "name": "Updated Product",
   "price": 39.99,
   "stock": 15
 }
 ```
 
-- **Respuesta exitosa**:
+- **Successful Response**:
 
 ```json
 {
   "success": true,
   "product": {
     "id": "abc123",
-    "name": "Producto Actualizado",
-    "description": "Descripción del producto",
+    "name": "Updated Product",
+    "description": "Product description",
     "price": 39.99,
-    "category": "electrónica",
+    "category": "electronics",
     "stock": 15
   }
 }
 ```
 
-#### Eliminar un producto (solo admin)
+#### Delete a product (admin only)
 
 - **URL**: `/api/products/:id`
-- **Método**: DELETE
-- **Auth**: Requiere token de administrador
-- **Respuesta exitosa**:
+- **Method**: DELETE
+- **Auth**: Admin token required
+- **Successful Response**:
 
 ```json
 {
   "success": true,
-  "message": "Producto eliminado correctamente"
+  "message": "Product deleted successfully"
 }
 ```
 
-#### Obtener productos por categoría
+#### Get products by category
 
 - **URL**: `/api/products/category/:category`
-- **Método**: GET
-- **Auth**: Requiere token
-- **Respuesta exitosa**:
+- **Method**: GET
+- **Auth**: Token required
+- **Successful Response**:
 
 ```json
 {
@@ -150,30 +146,30 @@ Para obtener un token, puedes iniciar sesión en la aplicación y usar la consol
   "products": [
     {
       "id": "abc123",
-      "name": "Producto 1",
-      "description": "Descripción del producto",
+      "name": "Product 1",
+      "description": "Product description",
       "price": 19.99,
-      "category": "electrónica",
+      "category": "electronics",
       "stock": 10
     }
   ]
 }
 ```
 
-#### Buscar productos
+#### Search products
 
 - **URL**: `/api/products/search`
-- **Método**: POST
-- **Auth**: Requiere token
+- **Method**: POST
+- **Auth**: Token required
 - **Body**:
 
 ```json
 {
-  "searchTerm": "texto a buscar"
+  "searchTerm": "text to search"
 }
 ```
 
-- **Respuesta exitosa**:
+- **Successful Response**:
 
 ```json
 {
@@ -181,38 +177,35 @@ Para obtener un token, puedes iniciar sesión en la aplicación y usar la consol
   "products": [
     {
       "id": "abc123",
-      "name": "Producto que contiene texto a buscar",
-      "description": "Descripción del producto",
+      "name": "Product containing search text",
+      "description": "Product description",
       "price": 19.99,
-      "category": "electrónica",
+      "category": "electronics",
       "stock": 10
     }
   ]
 }
 ```
 
-### Firebase Realtime Database
-
-Esta aplicación también admite interacción directa con Firebase Realtime Database. A continuación se detallan las operaciones que puedes realizar con Postman.
-
-#### Obtener todos los productos desde Realtime Database
+### Firebase Realtime DatabasTo
+#### Get all products from Realtime Database
 
 - **URL**: `https://app-334-default-rtdb.firebaseio.com/products.json`
-- **Método**: GET
-- **Respuesta exitosa**:
+- **Method**: GET
+- **Successful Response**:
 
 ```json
 {
   "-ProductID1": {
     "name": "Smartphone Samsung Galaxy S23",
-    "description": "Smartphone de última generación con 8GB RAM y 256GB almacenamiento",
+    "description": "Latest generation smartphone with 8GB RAM and 256GB storage",
     "price": 899.99,
-    "category": "electrónica",
+    "category": "electronics",
     "stock": 15
   },
   "-ProductID2": {
-    "name": "Laptop Gaming MSI GF63",
-    "description": "Laptop gaming con procesador Intel i7, 16GB RAM, RTX 3060, 512GB SSD",
+    "name": "MSI GF63 Gaming Laptop",
+    "description": "Gaming laptop with Intel i7 processor, 16GB RAM, RTX 3060, 512GB SSD",
     "price": 1299.99,
     "category": "laptops",
     "stock": 10
@@ -220,40 +213,40 @@ Esta aplicación también admite interacción directa con Firebase Realtime Data
 }
 ```
 
-#### Obtener un producto específico desde Realtime Database
+#### Get a specific product from Realtime Database
 
 - **URL**: `https://app-334-default-rtdb.firebaseio.com/products/{productId}.json`
-- **Método**: GET
-- **Respuesta exitosa**:
+- **Method**: GET
+- **Successful Response**:
 
 ```json
 {
   "name": "Smartphone Samsung Galaxy S23",
-  "description": "Smartphone de última generación con 8GB RAM y 256GB almacenamiento",
+  "description": "Latest generation smartphone with 8GB RAM and 256GB storage",
   "price": 899.99,
-  "category": "electrónica",
+  "category": "electronics",
   "stock": 15
 }
 ```
 
-#### Crear un nuevo producto en Realtime Database
+#### Create a new product in Realtime Database
 
 - **URL**: `https://app-334-default-rtdb.firebaseio.com/products.json`
-- **Método**: POST
+- **Method**: POST
 - **Body**:
 
 ```json
 {
   "id": "3",
-  "name": "Tablet iPad Pro",
-  "description": "Tablet Apple con pantalla Liquid Retina de 11 pulgadas",
+  "name": "iPad Pro Tablet",
+  "description": "Apple tablet with 11-inch Liquid Retina display",
   "price": 799.99,
   "category": "tablets",
   "stock": 8
 }
 ```
 
-- **Respuesta exitosa**:
+- **Successful Response**:
 
 ```json
 {
@@ -261,10 +254,10 @@ Esta aplicación también admite interacción directa con Firebase Realtime Data
 }
 ```
 
-#### Actualizar un producto en Realtime Database
+#### Update a product in Realtime Database
 
 - **URL**: `https://app-334-default-rtdb.firebaseio.com/products/{productId}.json`
-- **Método**: PATCH
+- **Method**: PATCH
 - **Body**:
 
 ```json
@@ -274,52 +267,11 @@ Esta aplicación también admite interacción directa con Firebase Realtime Data
 }
 ```
 
-- **Respuesta exitosa**:
+- **Successful Response**:
 
 ```json
 {
   "price": 749.99,
   "stock": 12
-}
-```
-
-#### Eliminar un producto en Realtime Database
-
-- **URL**: `https://app-334-default-rtdb.firebaseio.com/products/{productId}.json`
-- **Método**: DELETE
-- **Respuesta exitosa**:
-
-```
-null
-```
-
-### Sistema de ID acumulativos
-
-Para mantener IDs acumulativos, se utiliza el nodo `lastId` en la Realtime Database:
-
-1. Obtener el último ID utilizado:
-   - **URL**: `https://app-334-default-rtdb.firebaseio.com/lastId.json`
-   - **Método**: GET
-
-2. Actualizar el último ID después de crear un producto:
-   - **URL**: `https://app-334-default-rtdb.firebaseio.com/lastId.json`
-   - **Método**: PUT
-   - **Body**:
-   ```json
-   {
-     "value": 4
-   }
-   ```
-
-### Verificar si un usuario es administrador
-
-- **URL**: `/api/admin/check`
-- **Método**: GET
-- **Auth**: Requiere token
-- **Respuesta exitosa**:
-
-```json
-{
-  "isAdmin": true
-}
-```
+}`
+Shopper
