@@ -1,4 +1,4 @@
-# ShopAPP
+# Ecommerfy
 
 ## API Documentation with Postman
 
